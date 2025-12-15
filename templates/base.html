@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="nl">
+<head>
+    <meta charset="utf-8">
+    <title>QuickDelivery - {% block title %}{% endblock %}</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        header {
+            background: #1b365d;
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        header h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.5rem;
+        }
+
+        nav a {
+            color: white;
+            margin-right: 1rem;
+            text-decoration: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.95rem;
+        }
+
+        nav a:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        nav a.active {
+            font-weight: bold;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        main {
+            padding: 2rem 0;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem 1.75rem;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+        }
+
+        p {
+            line-height: 1.5;
+        }
+
+        ul {
+            padding-left: 1.25rem;
+        }
+
+        ul li {
+            margin-bottom: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="container">
+        <h1>QuickDelivery</h1>
+        <nav>
+            <a href="/" class="{% if current_page == 'home' %}active{% endif %}">Home</a>
+            <a href="/klanten" class="{% if current_page == 'klanten' %}active{% endif %}">Klanten</a>
+            <a href="/bestellingen" class="{% if current_page == 'bestellingen' %}active{% endif %}">Bestellingen</a>
+            <a href="/planning" class="{% if current_page == 'planning' %}active{% endif %}">Planning</a>
+            <a href="/tracking" class="{% if current_page == 'tracking' %}active{% endif %}">Tracking</a>
+        </nav>
+    </div>
+</header>
+<main>
+    <div class="container">
+        <div class="card">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</main>
+</body>
+</html>

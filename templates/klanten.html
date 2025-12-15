@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Klanten{% endblock %}
+
+{% block content %}
+    <h2>Klanten</h2>
+    <p>Voeg hieronder nieuwe klanten toe. Later kun je dit uitbreiden met bewerken/verwijderen en opslag in een database.</p>
+
+    <h3>Nieuwe klant toevoegen</h3>
+    <form method="post" style="margin-bottom: 1.5rem;">
+        <div style="margin-bottom: 0.5rem;">
+            <label for="naam">Naam *</label><br>
+            <input type="text" id="naam" name="naam" required style="width: 100%; padding: 0.4rem;">
+        </div>
+        <div style="margin-bottom: 0.5rem;">
+            <label for="adres">Adres *</label><br>
+            <input type="text" id="adres" name="adres" required style="width: 100%; padding: 0.4rem;">
+        </div>
+        <div style="margin-bottom: 0.75rem;">
+            <label for="contact">Contact (telefoon of e-mail)</label><br>
+            <input type="text" id="contact" name="contact" style="width: 100%; padding: 0.4rem;">
+        </div>
+        <button type="submit" style="background:#1b365d;color:white;border:none;padding:0.5rem 1rem;border-radius:4px;cursor:pointer;">Opslaan</button>
+    </form>
+
+    <h3>Bestaande klanten</h3>
+    {% if klanten and klanten|length > 0 %}
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+            <thead>
+                <tr style="background:#e5e7eb;">
+                    <th style="text-align:left; padding:0.4rem; border-bottom:1px solid #d1d5db;">ID</th>
+                    <th style="text-align:left; padding:0.4rem; border-bottom:1px solid #d1d5db;">Naam</th>
+                    <th style="text-align:left; padding:0.4rem; border-bottom:1px solid #d1d5db;">Adres</th>
+                    <th style="text-align:left; padding:0.4rem; border-bottom:1px solid #d1d5db;">Contact</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for klant in klanten %}
+                    <tr>
+                        <td style="padding:0.4rem; border-bottom:1px solid #e5e7eb;">{{ klant.id if klant.id is defined else klant["id"] }}</td>
+                        <td style="padding:0.4rem; border-bottom:1px solid #e5e7eb;">{{ klant.naam if klant.naam is defined else klant["naam"] }}</td>
+                        <td style="padding:0.4rem; border-bottom:1px solid #e5e7eb;">{{ klant.adres if klant.adres is defined else klant["adres"] }}</td>
+                        <td style="padding:0.4rem; border-bottom:1px solid #e5e7eb;">{{ klant.contact if klant.contact is defined else klant["contact"] }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Er zijn nog geen klanten toegevoegd.</p>
+    {% endif %}
+{% endblock %}
