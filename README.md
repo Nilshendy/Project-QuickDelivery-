@@ -2,27 +2,37 @@
 
 Een plannings- en trackingsysteem voor leveringen met desktop applicatie.
 
+## Download
+
+### Optie 1: Download ZIP (Makkelijkst)
+1. Klik op de groene **Code** knop bovenaan deze pagina
+2. Klik op **Download ZIP**
+3. Pak het ZIP bestand uit
+4. Ga naar de uitgepakte map
+
+### Optie 2: Git Clone
+```bash
+git clone https://github.com/Nilshendy/Project-QuickDelivery-.git
+cd Project-QuickDelivery-
+```
+
 ## Vereisten
 
-- Python 3.10 of hoger
+- Python 3.10 of hoger (download van [python.org](https://www.python.org/downloads/))
 - Tkinter (standaard meegeleverd met Python)
 
 ## Installatie
 
-1. Clone de repository:
-```bash
-git clone <repository-url>
-cd team7
-```
+**Geen installatie nodig!** De applicatie werkt direct zonder extra dependencies.
 
-2. Installeer dependencies:
-```bash
-pip install -r requirements.txt
-```
+*(Optioneel: `pip install -r requirements.txt` alleen als je de Flask webserver wilt gebruiken)*
 
 ## Applicatie starten
 
 ### Windows
+Dubbelklik op `desktop_main.pyw`
+
+Of via command line:
 ```bash
 pythonw desktop_main.pyw
 ```
