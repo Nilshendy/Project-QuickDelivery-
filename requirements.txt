@@ -1,1 +1,3 @@
+# Flask is alleen nodig voor de webserver (app.py)
+# De desktop applicatie (desktop_main.py) heeft geen extra dependencies
 flask==3.0.0

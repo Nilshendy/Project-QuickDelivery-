@@ -2,8 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 
-# Eenvoudige in-memory opslag voor klanten
-# In een later stadium kun je dit vervangen door een database (bijv. SQLite)
+# Klanten opslag
 klanten_data = []
 
 
@@ -50,5 +49,4 @@ def tracking():
 
 
 if __name__ == "__main__":
-    # Ontwikkel-instellingen: debug aan zodat je snel kunt testen
     app.run(debug=True)
