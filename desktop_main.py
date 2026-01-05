@@ -618,15 +618,22 @@ class QuickDeliveryApp(tk.Tk):
             ]
         if role == "chauffeur":
             return [
-                ("Chauffeur", "chauffeur"),
+                ("Dashboard", "chauffeur_dashboard"),
+                ("Mijn Leveringen", "chauffeur_leveringen"),
+                ("Route", "chauffeur_route"),
             ]
         if role == "manager":
             return [
-                ("Manager", "manager"),
+                ("Dashboard", "manager_dashboard"),
+                ("Prestaties", "manager_prestaties"),
+                ("Gebruikers", "manager_users"),
+                ("Rapporten", "manager_rapporten"),
             ]
         if role == "klant":
             return [
-                ("Klant", "klant"),
+                ("Dashboard", "klant_dashboard"),
+                ("Bestellingen", "klant_bestellingen"),
+                ("Tracking", "klant_tracking"),
             ]
         return []
 
@@ -698,12 +705,29 @@ class QuickDeliveryApp(tk.Tk):
             self._build_planning_page()
         elif page_name == "tracking":
             self._build_tracking_page()
-        elif page_name == "chauffeur":
-            self._build_chauffeur_page()
-        elif page_name == "manager":
-            self._build_manager_page()
-        elif page_name == "klant":
-            self._build_klant_page()
+        # Chauffeur pages
+        elif page_name == "chauffeur_dashboard":
+            self._build_chauffeur_dashboard_page()
+        elif page_name == "chauffeur_leveringen":
+            self._build_chauffeur_leveringen_page()
+        elif page_name == "chauffeur_route":
+            self._build_chauffeur_route_page()
+        # Manager pages
+        elif page_name == "manager_dashboard":
+            self._build_manager_dashboard_page()
+        elif page_name == "manager_prestaties":
+            self._build_manager_prestaties_page()
+        elif page_name == "manager_users":
+            self._build_manager_users_page()
+        elif page_name == "manager_rapporten":
+            self._build_manager_rapporten_page()
+        # Klant pages
+        elif page_name == "klant_dashboard":
+            self._build_klant_dashboard_page()
+        elif page_name == "klant_bestellingen":
+            self._build_klant_bestellingen_page()
+        elif page_name == "klant_tracking":
+            self._build_klant_tracking_page()
 
         self._set_active_nav(page_name)
 
@@ -770,11 +794,11 @@ class QuickDeliveryApp(tk.Tk):
         if self.current_role == "planner":
             self.show_page("dashboard")
         elif self.current_role == "chauffeur":
-            self.show_page("chauffeur")
+            self.show_page("chauffeur_dashboard")
         elif self.current_role == "manager":
-            self.show_page("manager")
+            self.show_page("manager_dashboard")
         elif self.current_role == "klant":
-            self.show_page("klant")
+            self.show_page("klant_dashboard")
         else:
             self.show_page("dashboard")
 
@@ -785,11 +809,11 @@ class QuickDeliveryApp(tk.Tk):
         self._rebuild_navigation()
         self.show_page("login")
 
-    def _build_chauffeur_page(self) -> None:
+    def _build_chauffeur_dashboard_page(self) -> None:
         self.content.columnconfigure(0, weight=1)
         self.content.rowconfigure(1, weight=1)
 
-        title = ttk.Label(self.content, text="Chauffeur Dashboard", font=("Segoe UI", 16, "bold"))
+        title = ttk.Label(self.content, text="Dashboard", font=("Segoe UI", 14, "bold"))
         title.grid(row=0, column=0, sticky="w", pady=(0, 12))
 
         # Main dashboard container
@@ -1015,51 +1039,128 @@ class QuickDeliveryApp(tk.Tk):
 
         self._refresh_chauffeur_deliveries()
 
-    def _build_manager_page(self) -> None:
+    def _build_chauffeur_leveringen_page(self) -> None:
+        """Pagina met alle leveringen voor de chauffeur."""
         self.content.columnconfigure(0, weight=1)
         self.content.rowconfigure(1, weight=1)
 
-        title = ttk.Label(self.content, text="Manager Dashboard", font=("Segoe UI", 16, "bold"))
-        title.grid(row=0, column=0, sticky="w", pady=(0, 8))
+        title = ttk.Label(self.content, text="Mijn Leveringen", font=("Segoe UI", 14, "bold"))
+        title.grid(row=0, column=0, sticky="w", pady=(0, 12))
 
-        # Tab buttons
-        tab_frame = ttk.Frame(self.content)
-        tab_frame.grid(row=1, column=0, sticky="ew", pady=(0, 12))
+        # Action buttons
+        action_frame = ttk.Frame(self.content)
+        action_frame.grid(row=0, column=0, sticky="e", pady=(0, 12))
 
-        self._manager_current_tab = getattr(self, "_manager_current_tab", "dashboard")
+        self.btn_chauffeur_onderweg2 = ttk.Button(action_frame, text="Markeer Onderweg", command=lambda: self._chauffeur_update_status("Onderweg"))
+        self.btn_chauffeur_onderweg2.grid(row=0, column=0, padx=(0, 8))
 
-        btn_dashboard = ttk.Button(tab_frame, text="Dashboard", command=lambda: self._switch_manager_tab("dashboard"))
-        btn_dashboard.grid(row=0, column=0, sticky="w", padx=(0, 8))
+        self.btn_chauffeur_afgeleverd2 = ttk.Button(action_frame, text="Markeer Afgeleverd", command=lambda: self._chauffeur_update_status("Afgeleverd"))
+        self.btn_chauffeur_afgeleverd2.grid(row=0, column=1, padx=(0, 8))
 
-        btn_users = ttk.Button(tab_frame, text="Gebruikersbeheer", command=lambda: self._switch_manager_tab("users"))
-        btn_users.grid(row=0, column=1, sticky="w")
+        refresh_btn = ttk.Button(action_frame, text="Ververs", command=self._refresh_chauffeur_deliveries)
+        refresh_btn.grid(row=0, column=2)
 
-        # Tab content container
-        self.manager_tab_content = ttk.Frame(self.content)
-        self.manager_tab_content.grid(row=2, column=0, sticky="nsew")
-        self.manager_tab_content.columnconfigure(0, weight=1)
-        self.manager_tab_content.rowconfigure(0, weight=1)
+        # Deliveries table
+        table_frame = ttk.Frame(self.content)
+        table_frame.grid(row=1, column=0, sticky="nsew")
+        table_frame.columnconfigure(0, weight=1)
+        table_frame.rowconfigure(0, weight=1)
+
+        columns = ("volgorde", "id", "klant", "adres", "eta", "status")
+        self.chauffeur_tree = ttk.Treeview(table_frame, columns=columns, show="headings", height=16)
+        self.chauffeur_tree.heading("volgorde", text="#")
+        self.chauffeur_tree.heading("id", text="ID")
+        self.chauffeur_tree.heading("klant", text="Klant")
+        self.chauffeur_tree.heading("adres", text="Afleveradres")
+        self.chauffeur_tree.heading("eta", text="ETA")
+        self.chauffeur_tree.heading("status", text="Status")
+
+        self.chauffeur_tree.column("volgorde", width=40, anchor="center")
+        self.chauffeur_tree.column("id", width=50, anchor="w")
+        self.chauffeur_tree.column("klant", width=150, anchor="w")
+        self.chauffeur_tree.column("adres", width=280, anchor="w")
+        self.chauffeur_tree.column("eta", width=80, anchor="w")
+        self.chauffeur_tree.column("status", width=100, anchor="w")
+
+        scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=self.chauffeur_tree.yview)
+        self.chauffeur_tree.configure(yscrollcommand=scrollbar.set)
+        self.chauffeur_tree.grid(row=0, column=0, sticky="nsew")
+        scrollbar.grid(row=0, column=1, sticky="ns")
+
+        self.chauffeur_tree.tag_configure("delivered", foreground="#888888")
+        self._refresh_chauffeur_deliveries()
+
+    def _build_chauffeur_route_page(self) -> None:
+        """Pagina met route informatie voor de chauffeur."""
+        self.content.columnconfigure(0, weight=1)
         self.content.rowconfigure(2, weight=1)
 
-        self._switch_manager_tab(self._manager_current_tab)
+        title = ttk.Label(self.content, text="Route", font=("Segoe UI", 14, "bold"))
+        title.grid(row=0, column=0, sticky="w", pady=(0, 12))
 
-    def _switch_manager_tab(self, tab_name: str) -> None:
-        self._manager_current_tab = tab_name
-        for child in self.manager_tab_content.winfo_children():
-            child.destroy()
+        # Route info
+        self._load_data_from_database()
+        deliveries = self._get_chauffeur_deliveries_sorted()
+        active = [d for d in deliveries if not d.get("is_done")]
 
-        if tab_name == "dashboard":
-            self._build_manager_dashboard_tab()
-        elif tab_name == "users":
-            self._build_manager_users_tab()
+        # Summary
+        info_frame = ttk.LabelFrame(self.content, text="Route Overzicht")
+        info_frame.grid(row=1, column=0, sticky="ew", pady=(0, 12))
+        info_frame.columnconfigure(1, weight=1)
 
-    def _build_manager_dashboard_tab(self) -> None:
-        self.manager_tab_content.columnconfigure(0, weight=1)
-        self.manager_tab_content.rowconfigure(0, weight=1)
+        ttk.Label(info_frame, text="Aantal stops:", font=("Segoe UI", 10)).grid(row=0, column=0, sticky="w", padx=12, pady=(8, 2))
+        ttk.Label(info_frame, text=str(len(active)), font=("Segoe UI", 12, "bold")).grid(row=0, column=1, sticky="e", padx=12, pady=(8, 2))
+
+        # Geschatte totale tijd
+        total_time = 0
+        if active:
+            last_eta = active[-1].get("eta", "08:00")
+            try:
+                h, m = map(int, last_eta.split(":"))
+                total_time = (h - 8) * 60 + m
+            except (ValueError, AttributeError):
+                total_time = len(active) * 15
+
+        ttk.Label(info_frame, text="Geschatte duur:", font=("Segoe UI", 10)).grid(row=1, column=0, sticky="w", padx=12, pady=(2, 8))
+        ttk.Label(info_frame, text=f"{total_time} min", font=("Segoe UI", 12, "bold")).grid(row=1, column=1, sticky="e", padx=12, pady=(2, 8))
+
+        # Route table
+        table_frame = ttk.LabelFrame(self.content, text="Route Volgorde")
+        table_frame.grid(row=2, column=0, sticky="nsew")
+        table_frame.columnconfigure(0, weight=1)
+        table_frame.rowconfigure(0, weight=1)
+
+        columns = ("volgorde", "klant", "adres", "eta")
+        self.chauffeur_route_tree = ttk.Treeview(table_frame, columns=columns, show="headings", height=14)
+        self.chauffeur_route_tree.heading("volgorde", text="Stop")
+        self.chauffeur_route_tree.heading("klant", text="Klant")
+        self.chauffeur_route_tree.heading("adres", text="Adres")
+        self.chauffeur_route_tree.heading("eta", text="ETA")
+
+        self.chauffeur_route_tree.column("volgorde", width=50, anchor="center")
+        self.chauffeur_route_tree.column("klant", width=150, anchor="w")
+        self.chauffeur_route_tree.column("adres", width=350, anchor="w")
+        self.chauffeur_route_tree.column("eta", width=80, anchor="w")
+
+        scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=self.chauffeur_route_tree.yview)
+        self.chauffeur_route_tree.configure(yscrollcommand=scrollbar.set)
+        self.chauffeur_route_tree.grid(row=0, column=0, sticky="nsew", padx=(12, 0), pady=12)
+        scrollbar.grid(row=0, column=1, sticky="ns", padx=(0, 12), pady=12)
+
+        # Vul de route tabel
+        for d in active:
+            self.chauffeur_route_tree.insert("", tk.END, values=(d["volgorde"], d["klant"], d["adres"], d["eta"]))
+
+    def _build_manager_dashboard_page(self) -> None:
+        self.content.columnconfigure(0, weight=1)
+        self.content.rowconfigure(1, weight=1)
+
+        title = ttk.Label(self.content, text="Dashboard", font=("Segoe UI", 14, "bold"))
+        title.grid(row=0, column=0, sticky="w", pady=(0, 12))
 
         # Main dashboard container
-        main_frame = ttk.Frame(self.manager_tab_content)
-        main_frame.grid(row=0, column=0, sticky="nsew")
+        main_frame = ttk.Frame(self.content)
+        main_frame.grid(row=1, column=0, sticky="nsew")
         main_frame.columnconfigure(0, weight=1)
         main_frame.columnconfigure(1, weight=2)
         main_frame.rowconfigure(0, weight=1)
@@ -1163,13 +1264,53 @@ class QuickDeliveryApp(tk.Tk):
 
         self._refresh_manager_stats()
 
-    def _build_manager_users_tab(self) -> None:
-        self.manager_tab_content.columnconfigure(0, weight=1)
-        self.manager_tab_content.rowconfigure(1, weight=1)
+    def _build_manager_prestaties_page(self) -> None:
+        """Pagina met chauffeur prestaties voor de manager."""
+        self.content.columnconfigure(0, weight=1)
+        self.content.rowconfigure(1, weight=1)
+
+        title = ttk.Label(self.content, text="Prestaties", font=("Segoe UI", 14, "bold"))
+        title.grid(row=0, column=0, sticky="w", pady=(0, 12))
+
+        # Chauffeur performance table
+        table_frame = ttk.Frame(self.content)
+        table_frame.grid(row=1, column=0, sticky="nsew")
+        table_frame.columnconfigure(0, weight=1)
+        table_frame.rowconfigure(0, weight=1)
+
+        columns = ("chauffeur", "totaal", "afgeleverd", "onderweg", "gepland", "gem_levertijd")
+        self.manager_tree = ttk.Treeview(table_frame, columns=columns, show="headings", height=16)
+        self.manager_tree.heading("chauffeur", text="Chauffeur")
+        self.manager_tree.heading("totaal", text="Totaal")
+        self.manager_tree.heading("afgeleverd", text="Afgeleverd")
+        self.manager_tree.heading("onderweg", text="Onderweg")
+        self.manager_tree.heading("gepland", text="Gepland")
+        self.manager_tree.heading("gem_levertijd", text="Gem. tijd")
+
+        self.manager_tree.column("chauffeur", width=180, anchor="w")
+        self.manager_tree.column("totaal", width=80, anchor="center")
+        self.manager_tree.column("afgeleverd", width=100, anchor="center")
+        self.manager_tree.column("onderweg", width=100, anchor="center")
+        self.manager_tree.column("gepland", width=80, anchor="center")
+        self.manager_tree.column("gem_levertijd", width=100, anchor="center")
+
+        scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=self.manager_tree.yview)
+        self.manager_tree.configure(yscrollcommand=scrollbar.set)
+        self.manager_tree.grid(row=0, column=0, sticky="nsew")
+        scrollbar.grid(row=0, column=1, sticky="ns")
+
+        self._refresh_manager_stats()
+
+    def _build_manager_users_page(self) -> None:
+        self.content.columnconfigure(0, weight=1)
+        self.content.rowconfigure(2, weight=1)
+
+        title = ttk.Label(self.content, text="Gebruikers", font=("Segoe UI", 14, "bold"))
+        title.grid(row=0, column=0, sticky="w", pady=(0, 12))
 
         # Form for creating new users
-        form_frame = ttk.LabelFrame(self.manager_tab_content, text="Nieuw Account Aanmaken")
-        form_frame.grid(row=0, column=0, sticky="ew", pady=(0, 12))
+        form_frame = ttk.LabelFrame(self.content, text="Nieuw Account Aanmaken")
+        form_frame.grid(row=1, column=0, sticky="ew", pady=(0, 12))
         form_frame.columnconfigure(1, weight=1)
 
         ttk.Label(form_frame, text="E-mail:").grid(row=0, column=0, sticky="w", padx=12, pady=(12, 4))
@@ -1189,8 +1330,8 @@ class QuickDeliveryApp(tk.Tk):
         btn_create.grid(row=3, column=0, columnspan=2, sticky="e", padx=12, pady=(8, 12))
 
         # List of existing users
-        list_frame = ttk.LabelFrame(self.manager_tab_content, text="Bestaande Gebruikers")
-        list_frame.grid(row=1, column=0, sticky="nsew")
+        list_frame = ttk.LabelFrame(self.content, text="Bestaande Gebruikers")
+        list_frame.grid(row=2, column=0, sticky="nsew")
         list_frame.columnconfigure(0, weight=1)
         list_frame.rowconfigure(0, weight=1)
 
@@ -1299,6 +1440,92 @@ class QuickDeliveryApp(tk.Tk):
 
         for row in rows:
             self.manager_users_tree.insert("", tk.END, values=(row[0], row[1], row[2]))
+
+    def _build_manager_rapporten_page(self) -> None:
+        """Pagina met rapporten en export opties voor de manager."""
+        self.content.columnconfigure(0, weight=1)
+        self.content.rowconfigure(2, weight=1)
+
+        title = ttk.Label(self.content, text="Rapporten", font=("Segoe UI", 14, "bold"))
+        title.grid(row=0, column=0, sticky="w", pady=(0, 12))
+
+        # Export options
+        export_frame = ttk.LabelFrame(self.content, text="Export Opties")
+        export_frame.grid(row=1, column=0, sticky="ew", pady=(0, 12))
+        export_frame.columnconfigure(0, weight=1)
+        export_frame.columnconfigure(1, weight=1)
+
+        btn_export_prestaties = ttk.Button(export_frame, text="Export Chauffeur Prestaties (CSV)", command=self._export_manager_csv)
+        btn_export_prestaties.grid(row=0, column=0, sticky="ew", padx=12, pady=12)
+
+        btn_export_bestellingen = ttk.Button(export_frame, text="Export Alle Bestellingen (CSV)", command=self._export_all_bestellingen_csv)
+        btn_export_bestellingen.grid(row=0, column=1, sticky="ew", padx=12, pady=12)
+
+        # Summary stats
+        stats = self._calculate_manager_stats()
+
+        stats_frame = ttk.LabelFrame(self.content, text="Samenvatting")
+        stats_frame.grid(row=2, column=0, sticky="nsew")
+        stats_frame.columnconfigure(1, weight=1)
+
+        ttk.Label(stats_frame, text="Totaal bestellingen:", font=("Segoe UI", 11)).grid(row=0, column=0, sticky="w", padx=12, pady=(12, 4))
+        ttk.Label(stats_frame, text=str(stats['totaal']), font=("Segoe UI", 11, "bold")).grid(row=0, column=1, sticky="e", padx=12, pady=(12, 4))
+
+        ttk.Label(stats_frame, text="Afgeleverd:", font=("Segoe UI", 11)).grid(row=1, column=0, sticky="w", padx=12, pady=4)
+        ttk.Label(stats_frame, text=str(stats['afgeleverd']), font=("Segoe UI", 11, "bold"), foreground="#27AE60").grid(row=1, column=1, sticky="e", padx=12, pady=4)
+
+        ttk.Label(stats_frame, text="Onderweg:", font=("Segoe UI", 11)).grid(row=2, column=0, sticky="w", padx=12, pady=4)
+        ttk.Label(stats_frame, text=str(stats['onderweg']), font=("Segoe UI", 11, "bold"), foreground="#E67E22").grid(row=2, column=1, sticky="e", padx=12, pady=4)
+
+        ttk.Label(stats_frame, text="Gepland:", font=("Segoe UI", 11)).grid(row=3, column=0, sticky="w", padx=12, pady=4)
+        ttk.Label(stats_frame, text=str(stats['gepland']), font=("Segoe UI", 11, "bold"), foreground="#666666").grid(row=3, column=1, sticky="e", padx=12, pady=4)
+
+        ttk.Label(stats_frame, text="Geannuleerd:", font=("Segoe UI", 11)).grid(row=4, column=0, sticky="w", padx=12, pady=4)
+        ttk.Label(stats_frame, text=str(stats['geannuleerd']), font=("Segoe UI", 11, "bold"), foreground="#C0392B").grid(row=4, column=1, sticky="e", padx=12, pady=4)
+
+        # Success rate
+        success_rate = 0
+        if stats['totaal'] > 0:
+            success_rate = round((stats['afgeleverd'] / stats['totaal']) * 100, 1)
+        color = "#27AE60" if success_rate >= 80 else "#E67E22" if success_rate >= 50 else "#C0392B"
+
+        ttk.Label(stats_frame, text="Succes ratio:", font=("Segoe UI", 11)).grid(row=5, column=0, sticky="w", padx=12, pady=(12, 12))
+        ttk.Label(stats_frame, text=f"{success_rate}%", font=("Segoe UI", 14, "bold"), foreground=color).grid(row=5, column=1, sticky="e", padx=12, pady=(12, 12))
+
+    def _export_all_bestellingen_csv(self) -> None:
+        """Export alle bestellingen naar CSV."""
+        self._load_data_from_database()
+        if not self.bestellingen_data:
+            messagebox.showinfo("Export", "Geen bestellingen om te exporteren.")
+            return
+
+        path = filedialog.asksaveasfilename(
+            title="Exporteer bestellingen naar CSV",
+            defaultextension=".csv",
+            filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
+        )
+        if not path:
+            return
+
+        try:
+            with open(path, "w", newline="", encoding="utf-8") as f:
+                w = csv.writer(f)
+                w.writerow(["ID", "Klant", "Ophaaladres", "Afleveradres", "Datum", "Status", "Chauffeur ID"])
+                for b in self.bestellingen_data:
+                    w.writerow([
+                        b.get("id", ""),
+                        b.get("klant", ""),
+                        b.get("ophaal", ""),
+                        b.get("aflever", ""),
+                        b.get("datum", ""),
+                        b.get("status", ""),
+                        b.get("chauffeur_id", ""),
+                    ])
+        except OSError:
+            messagebox.showerror("Fout", "Kon het CSV bestand niet opslaan.")
+            return
+
+        messagebox.showinfo("Export", "CSV export is opgeslagen.")
 
     def _calculate_manager_stats(self) -> dict:
         self._load_data_from_database()
@@ -1414,11 +1641,11 @@ class QuickDeliveryApp(tk.Tk):
 
         messagebox.showinfo("Export", "CSV export is opgeslagen.")
 
-    def _build_klant_page(self) -> None:
+    def _build_klant_dashboard_page(self) -> None:
         self.content.columnconfigure(0, weight=1)
         self.content.rowconfigure(1, weight=1)
 
-        title = ttk.Label(self.content, text="Klant Dashboard", font=("Segoe UI", 16, "bold"))
+        title = ttk.Label(self.content, text="Dashboard", font=("Segoe UI", 14, "bold"))
         title.grid(row=0, column=0, sticky="w", pady=(0, 12))
 
         # Main dashboard container
@@ -1635,6 +1862,125 @@ class QuickDeliveryApp(tk.Tk):
             self._refresh_klant_bestellingen()
             self._refresh_klant_eventlog()
             self._schedule_klant_refresh()
+
+    def _build_klant_bestellingen_page(self) -> None:
+        """Pagina met alle bestellingen voor de klant."""
+        self.content.columnconfigure(0, weight=1)
+        self.content.rowconfigure(1, weight=1)
+
+        title = ttk.Label(self.content, text="Bestellingen", font=("Segoe UI", 14, "bold"))
+        title.grid(row=0, column=0, sticky="w", pady=(0, 12))
+
+        # Search and refresh
+        action_frame = ttk.Frame(self.content)
+        action_frame.grid(row=0, column=0, sticky="e", pady=(0, 12))
+        action_frame.columnconfigure(1, weight=1)
+
+        ttk.Label(action_frame, text="Zoek:").grid(row=0, column=0, sticky="w")
+        self.entry_klant_search = ttk.Entry(action_frame, width=20)
+        self.entry_klant_search.grid(row=0, column=1, sticky="ew", padx=(8, 8))
+        self.entry_klant_search.bind("<KeyRelease>", lambda _e: self._refresh_klant_bestellingen())
+
+        refresh_btn = ttk.Button(action_frame, text="Ververs", command=self._refresh_klant_bestellingen)
+        refresh_btn.grid(row=0, column=2)
+
+        # Orders table
+        table_frame = ttk.Frame(self.content)
+        table_frame.grid(row=1, column=0, sticky="nsew")
+        table_frame.columnconfigure(0, weight=1)
+        table_frame.rowconfigure(0, weight=1)
+
+        columns = ("id", "klant", "aflever", "status", "eta")
+        self.klant_tree = ttk.Treeview(table_frame, columns=columns, show="headings", height=16)
+        self.klant_tree.heading("id", text="#")
+        self.klant_tree.heading("klant", text="Klant")
+        self.klant_tree.heading("aflever", text="Afleveradres")
+        self.klant_tree.heading("status", text="Status")
+        self.klant_tree.heading("eta", text="ETA")
+
+        self.klant_tree.column("id", width=50, anchor="w")
+        self.klant_tree.column("klant", width=150, anchor="w")
+        self.klant_tree.column("aflever", width=280, anchor="w")
+        self.klant_tree.column("status", width=100, anchor="w")
+        self.klant_tree.column("eta", width=100, anchor="w")
+
+        scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=self.klant_tree.yview)
+        self.klant_tree.configure(yscrollcommand=scrollbar.set)
+        self.klant_tree.grid(row=0, column=0, sticky="nsew")
+        scrollbar.grid(row=0, column=1, sticky="ns")
+
+        self.klant_tree.tag_configure("gepland", foreground="#666666")
+        self.klant_tree.tag_configure("onderweg", foreground="#E67E22")
+        self.klant_tree.tag_configure("afgeleverd", foreground="#27AE60")
+        self.klant_tree.tag_configure("geannuleerd", foreground="#C0392B")
+
+        self._refresh_klant_bestellingen()
+
+    def _build_klant_tracking_page(self) -> None:
+        """Pagina met tracking informatie voor de klant."""
+        self.content.columnconfigure(0, weight=1)
+        self.content.rowconfigure(2, weight=1)
+
+        title = ttk.Label(self.content, text="Tracking", font=("Segoe UI", 14, "bold"))
+        title.grid(row=0, column=0, sticky="w", pady=(0, 12))
+
+        # Current status
+        self._load_data_from_database()
+        all_orders = self.bestellingen_data
+        onderweg = [b for b in all_orders if b.get("status") == "Onderweg"]
+        gepland = [b for b in all_orders if b.get("status") == "Gepland"]
+
+        status_frame = ttk.LabelFrame(self.content, text="Huidige Status")
+        status_frame.grid(row=1, column=0, sticky="ew", pady=(0, 12))
+        status_frame.columnconfigure(0, weight=1)
+
+        if onderweg:
+            latest = onderweg[0]
+            ttk.Label(status_frame, text="Levering onderweg!", font=("Segoe UI", 14, "bold"), foreground="#E67E22").grid(row=0, column=0, sticky="w", padx=12, pady=(12, 4))
+            ttk.Label(status_frame, text=f"Bestelling #{latest['id']}", font=("Segoe UI", 11)).grid(row=1, column=0, sticky="w", padx=12, pady=2)
+            ttk.Label(status_frame, text=f"Naar: {latest.get('aflever', '')}", font=("Segoe UI", 11)).grid(row=2, column=0, sticky="w", padx=12, pady=2)
+            ttk.Label(status_frame, text="Verwachte aankomst: Binnenkort", font=("Segoe UI", 11, "bold")).grid(row=3, column=0, sticky="w", padx=12, pady=(2, 12))
+        elif gepland:
+            latest = gepland[0]
+            ttk.Label(status_frame, text="Levering gepland", font=("Segoe UI", 14, "bold"), foreground="#666666").grid(row=0, column=0, sticky="w", padx=12, pady=(12, 4))
+            ttk.Label(status_frame, text=f"Bestelling #{latest['id']}", font=("Segoe UI", 11)).grid(row=1, column=0, sticky="w", padx=12, pady=2)
+            ttk.Label(status_frame, text="Status: Wacht op chauffeur", font=("Segoe UI", 11)).grid(row=2, column=0, sticky="w", padx=12, pady=(2, 12))
+        else:
+            ttk.Label(status_frame, text="Geen actieve leveringen", font=("Segoe UI", 14), foreground="#666666").grid(row=0, column=0, sticky="w", padx=12, pady=12)
+
+        # Event log
+        eventlog_frame = ttk.LabelFrame(self.content, text="Status Updates")
+        eventlog_frame.grid(row=2, column=0, sticky="nsew")
+        eventlog_frame.columnconfigure(0, weight=1)
+        eventlog_frame.rowconfigure(0, weight=1)
+
+        ev_columns = ("timestamp", "bestelling", "status", "opmerking")
+        self.klant_tracking_tree = ttk.Treeview(eventlog_frame, columns=ev_columns, show="headings", height=12)
+        self.klant_tracking_tree.heading("timestamp", text="Tijd")
+        self.klant_tracking_tree.heading("bestelling", text="Bestelling")
+        self.klant_tracking_tree.heading("status", text="Status")
+        self.klant_tracking_tree.heading("opmerking", text="Opmerking")
+
+        self.klant_tracking_tree.column("timestamp", width=150, anchor="w")
+        self.klant_tracking_tree.column("bestelling", width=100, anchor="w")
+        self.klant_tracking_tree.column("status", width=100, anchor="w")
+        self.klant_tracking_tree.column("opmerking", width=200, anchor="w")
+
+        ev_scroll = ttk.Scrollbar(eventlog_frame, orient="vertical", command=self.klant_tracking_tree.yview)
+        self.klant_tracking_tree.configure(yscrollcommand=ev_scroll.set)
+        self.klant_tracking_tree.grid(row=0, column=0, sticky="nsew", padx=(12, 0), pady=12)
+        ev_scroll.grid(row=0, column=1, sticky="ns", padx=(0, 12), pady=12)
+
+        # Vul de tracking tabel met recente events
+        for best in all_orders[:10]:
+            events = self._get_status_events_for_bestelling(best["id"])
+            for ev in events[:3]:
+                self.klant_tracking_tree.insert("", tk.END, values=(
+                    ev["timestamp"],
+                    f"#{best['id']}",
+                    ev["status"],
+                    ev["opmerking"] or ""
+                ))
 
     def _build_chauffeurs_page(self) -> None:
         self.content.columnconfigure(0, weight=1)
